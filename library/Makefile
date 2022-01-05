@@ -4,22 +4,22 @@ ASDFLAGS:=-Wall -c fPIC
 BIN:=main
 LIB:=reader
 OBJS:=$(wildcard *.o)
+LIBS:=$(wildcard *.so)
 
 $(BIN): main.o $(LIB)
-	$(CC) -L/home/domantas/Desktop/makefailai2/library -Wall main.o -o $(BIN) -l$(LIB)
+	$(CC) -L$(PWD) -Wall main.o -o $(BIN) -l$(LIB)
 
 main.o: main.c
 	$(CC) -c main.c
 
 $(LIB): file_reader.c file_reader.h
-	$(CC) -c -Wall -fPIC file_reader.c;
+	$(CC) -c -Wall -fPIC file_reader.c
 	$(CC) -shared -o lib$(LIB).so file_reader.o
 
-# sita turbut galima isimti, ir reikia paciomis rankomis parasyt
 install:
-	LD_LIBRARY_PATH=/home/domantas/Desktop/makefailai2/library
+	LD_LIBRARY_PATH=$(PWD)
 
 uninstall:
 
 clean:
-	rm -f $(OBJS) *.so $(BIN)
+	rm -f $(OBJS) $(LIBS) $(BIN)
