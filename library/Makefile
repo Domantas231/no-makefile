@@ -1,25 +1,37 @@
 CC:=gcc
-LDFLAGS:=-Wall -o 
-ASDFLAGS:=-Wall -c fPIC
 BIN:=main
-LIB:=reader
-OBJS:=$(wildcard *.o)
-LIBS:=$(wildcard *.so)
+LIB:=libreader.so
+LIBNAME:=reader
+SRC:=$(wildcard *.c)
+OBJS:=$(SRC:.c=.o)
+
+PREFIX:=/usr
+
+.PHONY: all install uninstall clean
+
+all: $(BIN)
 
 $(BIN): main.o $(LIB)
-	$(CC) -L$(PWD) -Wall main.o -o $(BIN) -l$(LIB)
+	$(CC) -L$(PWD) -Wall $< -o $(BIN) -l$(LIBNAME)
 
 main.o: main.c
-	$(CC) -c main.c
+	$(CC) -c $^
 
-$(LIB): file_reader.c file_reader.h
-	$(CC) -c -Wall -fPIC file_reader.c
-	$(CC) -shared -o lib$(LIB).so file_reader.o
+$(LIB): file_reader.o
+	$(CC) -shared -o $(LIB) $^
+
+file_reader.o: file_reader.c
+	$(CC) -c -Wall -fPIC $^
 
 install:
-	LD_LIBRARY_PATH=$(PWD)
+	install -d $(PREFIX)/lib
+	install -d $(PREFIX)/include
+	install -m 644 $(LIB) $(PREFIX)/lib/$(LIB)
+	install -m 644 file_reader.h $(PREFIX)/include/file_reader.h
 
 uninstall:
+	$(RM) $(LIB) $(PREFIX)/lib/$(LIB)
+	$(RM) $(LIB) $(PREFIX)/include/file_reader.h
 
 clean:
-	rm -f $(OBJS) $(LIBS) $(BIN)
+	$(RM) $(OBJS) $(LIB) $(BIN)
